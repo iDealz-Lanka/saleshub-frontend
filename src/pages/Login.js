@@ -3,73 +3,97 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
-  const [form, setForm] = useState({ username: '', password: '' });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); setLoading(true);
+    if (!username || !password) return setError('Please enter username and password');
+    setLoading(true);
+    setError('');
     try {
-      await login(form.username, form.password);
+      await login(username, password);
       navigate('/');
-    } catch {
-      setError('Invalid username or password');
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) {
+      setError(err.response?.data?.error || 'Invalid username or password');
+    } finally { setLoading(false); }
   };
 
   return (
     <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4F46E5 100%)',
-      padding: 20
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#F9FAFB'
     }}>
-      <div style={{ width: '100%', maxWidth: 400 }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>📊</div>
-          <h1 style={{ color: 'white', fontSize: 26, fontWeight: 800, letterSpacing: '-0.5px' }}>SalesHub</h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, marginTop: 4 }}>
-            Branch Sales Management System
-          </p>
-        </div>
+      <div style={{
+        background: 'white',
+        borderRadius: 16,
+        padding: '40px 36px',
+        width: '100%',
+        maxWidth: 400,
+        boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+        border: '1px solid #E5E7EB'
+      }}>
+        <form onSubmit={handleLogin}>
+          <div className="form-group" style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6, display: 'block' }}>
+              Username
+            </label>
+            <input
+              className="form-control"
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              autoComplete="username"
+              style={{ fontSize: 15, padding: '12px 14px', borderRadius: 10 }}
+            />
+          </div>
 
-        {/* Card */}
-        <div className="card" style={{ padding: 32 }}>
-          <h2 style={{ marginBottom: 24, fontSize: 18 }}>Sign in to your account</h2>
+          <div className="form-group" style={{ marginBottom: 24 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6, display: 'block' }}>
+              Password
+            </label>
+            <input
+              className="form-control"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              autoComplete="current-password"
+              style={{ fontSize: 15, padding: '12px 14px', borderRadius: 10 }}
+            />
+          </div>
+
           {error && (
             <div style={{
               background: '#FEF2F2', border: '1px solid #FECACA',
-              color: '#DC2626', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13
+              borderRadius: 8, padding: '10px 14px',
+              color: '#DC2626', fontSize: 13, marginBottom: 20
             }}>
-              ⚠️ {error}
+              {error}
             </div>
           )}
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Username</label>
-              <input className="form-control" placeholder="Enter username"
-                value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} required />
-            </div>
-            <div className="form-group">
-              <label>Password</label>
-              <input className="form-control" type="password" placeholder="Enter password"
-                value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
-            </div>
-            <button type="submit" className="btn btn-primary" disabled={loading}
-              style={{ width: '100%', justifyContent: 'center', padding: '11px', fontSize: 14, marginTop: 8 }}>
-              {loading ? 'Signing in...' : '→ Sign In'}
-            </button>
-          </form>
-        </div>
 
-        <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: 16, fontSize: 12 }}>
-          Prime • Liberty • Marino
-        </p>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%', padding: '13px',
+              background: loading ? '#A5B4FC' : '#4F46E5',
+              color: 'white', border: 'none', borderRadius: 10,
+              fontSize: 15, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'background 0.2s'
+            }}>
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
       </div>
     </div>
   );
