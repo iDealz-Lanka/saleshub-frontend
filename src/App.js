@@ -34,23 +34,18 @@ function WakeUp({ children }) {
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4F46E5 100%)'
+      background: '#F9FAFB'
     }}>
-      <div style={{ fontSize: 52, marginBottom: 16 }}>📊</div>
-      <div style={{ color: 'white', fontSize: 24, fontWeight: 800, marginBottom: 8 }}>SalesHub</div>
-      <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 32 }}>
-        Prime • Liberty • Marino
-      </div>
       <div style={{
-        width: 48, height: 48, border: '4px solid rgba(255,255,255,0.2)',
-        borderTop: '4px solid white', borderRadius: '50%',
+        width: 48, height: 48, border: '4px solid #E0E7FF',
+        borderTop: '4px solid #4F46E5', borderRadius: '50%',
         animation: 'spin 1s linear infinite', marginBottom: 24
       }} />
-      <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 500 }}>
-        {attempt === 0 ? 'Starting up...' : attempt < 3 ? 'Waking up server...' : 'Almost ready...'}
+      <div style={{ color: '#6B7280', fontSize: 14 }}>
+        {attempt === 0 ? 'Loading...' : attempt < 3 ? 'Please wait...' : 'Almost ready...'}
       </div>
       {attempt > 2 && (
-        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, marginTop: 8 }}>
+        <div style={{ color: '#9CA3AF', fontSize: 12, marginTop: 8 }}>
           This may take up to 30 seconds on first load
         </div>
       )}
