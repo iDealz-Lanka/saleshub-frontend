@@ -27,11 +27,12 @@ const empty = (branch, date) => ({
 
 export default function SalesEntry() {
   const { user } = useAuth();
+  const today = format(new Date(), 'yyyy-MM-dd');
   const [sales, setSales] = useState([]);
-  const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [date, setDate] = useState(today);
   const [branch, setBranch] = useState(user?.role === 'admin' ? 'Prime' : user?.branch);
   const [modal, setModal] = useState(false);
-  const [form, setForm] = useState(empty(branch, date));
+  const [form, setForm] = useState(empty(branch, today));
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [expandedRow, setExpandedRow] = useState(null);
@@ -47,12 +48,21 @@ export default function SalesEntry() {
   useEffect(() => { fetchSales(); }, [fetchSales]);
 
   const openAdd = () => {
-    setForm(empty(branch, date));
+    // Managers always get today's date locked
+    const saleDate = user?.role === 'admin' ? date : today;
+    setForm(empty(branch, saleDate));
     setModal(true);
   };
 
   const handleSave = async () => {
     if (saving) return;
+
+    // Extra security — managers cannot submit past or future dates
+    if (user?.role !== 'admin' && form.sale_date !== today) {
+      alert('You can only enter sales for today.');
+      return;
+    }
+
     setSaving(true);
     try {
       await api.post('/sales', form);
@@ -161,8 +171,13 @@ export default function SalesEntry() {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>DATE</label>
-              <input type="date" className="form-control" style={{ width: 150 }}
-                value={date} onChange={e => setDate(e.target.value)} />
+              {user?.role === 'admin' ? (
+                <input type="date" className="form-control" style={{ width: 150 }}
+                  value={date} onChange={e => setDate(e.target.value)} />
+              ) : (
+                <input type="date" className="form-control" style={{ width: 150, background: '#F3F4F6', cursor: 'not-allowed' }}
+                  value={date} readOnly />
+              )}
             </div>
             {user?.role === 'admin' && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -173,6 +188,14 @@ export default function SalesEntry() {
                 </select>
               </div>
             )}
+            {user?.role !== 'admin' && (
+              <span style={{
+                fontSize: 11, background: '#EEF2FF', color: '#4F46E5',
+                padding: '4px 10px', borderRadius: 20, fontWeight: 600
+              }}>
+                📍 {user?.branch} — Today Only
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -182,7 +205,7 @@ export default function SalesEntry() {
         <div className="card-header">
           <h3>
             <span className={`badge ${BRANCH_BADGE[branch]}`} style={{ marginRight: 8 }}>{branch}</span>
-            {date ? format(new Date(date + 'T00:00:00'), 'MMM d, yyyy') : 'All Dates'}
+            {format(new Date(date + 'T00:00:00'), 'MMM d, yyyy')}
           </h3>
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{sales.length} entries</span>
         </div>
@@ -247,12 +270,9 @@ export default function SalesEntry() {
                       </td>
                     </tr>
 
-                    {/* Expanded Row — always shows when clicked */}
                     {expandedRow === s.id && (
                       <tr>
                         <td colSpan={9} style={{ background: '#F8F7FF', padding: '10px 16px' }}>
-
-                          {/* Items Table */}
                           {s.items && s.items.length > 0 ? (
                             <table style={{ width: '100%', minWidth: 'unset' }}>
                               <thead>
@@ -306,10 +326,7 @@ export default function SalesEntry() {
                           ) : (
                             <p style={{ fontSize: 12, color: 'var(--text-muted)', padding: '4px 0' }}>No items recorded</p>
                           )}
-
-                          {/* Extra Info — always shows */}
                           <ExtraInfo s={s} />
-
                         </td>
                       </tr>
                     )}
@@ -335,8 +352,19 @@ export default function SalesEntry() {
               <div className="grid-2">
                 <div className="form-group">
                   <label>Date</label>
-                  <input type="date" className="form-control" value={form.sale_date}
-                    onChange={e => set('sale_date', e.target.value)} />
+                  {user?.role === 'admin' ? (
+                    <input type="date" className="form-control" value={form.sale_date}
+                      onChange={e => set('sale_date', e.target.value)} />
+                  ) : (
+                    <div>
+                      <input type="date" className="form-control" value={form.sale_date}
+                        readOnly
+                        style={{ background: '#F3F4F6', color: '#6B7280', cursor: 'not-allowed' }} />
+                      <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>
+                        📅 Locked to today only
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {user?.role === 'admin' && (
                   <div className="form-group">
