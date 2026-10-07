@@ -32,16 +32,15 @@ export default function Layout() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 20 }}>📊</span>
-          <span style={{ fontWeight: 800, fontSize: 16 }}>SalesHub</span>
           <span style={{
             background: branchColor, color: 'white',
-            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, marginLeft: 4
+            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20
           }}>
             {user?.role === 'admin' ? '⚡ Admin' : `📍 ${user?.branch}`}
           </span>
         </div>
 
+        {/* Desktop Nav */}
         <nav style={{ display: 'none', gap: 4 }} className="desktop-nav">
           {navItems.map(item => (
             <NavLink key={item.to} to={item.to} end style={({ isActive }) => ({
@@ -60,6 +59,7 @@ export default function Layout() {
           }}>🚪 Logout</button>
         </nav>
 
+        {/* Mobile Hamburger */}
         <button onClick={() => setMenuOpen(!menuOpen)} style={{
           background: 'none', border: 'none', color: 'white',
           fontSize: 22, cursor: 'pointer', padding: 4
@@ -68,6 +68,7 @@ export default function Layout() {
         </button>
       </header>
 
+      {/* Mobile Menu */}
       {menuOpen && (
         <div style={{
           background: '#1E1B4B', borderBottom: '1px solid rgba(255,255,255,0.1)',
